@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "omp.h"
 
 float** LlenaMatriz(int fila,int columna, FILE *archivo,	float **matriz){
 
@@ -23,22 +24,27 @@ void MultiplicarMatrices(int fila1, int fila2, int columna2, float **matriz1, fl
 	resultado = fopen("resultado","w");
 
 	fprintf(resultado,"%d \n",fila1);
-   fprintf(resultado,"%d \n",columna2);
+   	fprintf(resultado,"%d \n",columna2);
 
-	for (int k = 0; k < fila1; k++){
-		for (int i = 0; i < columna2; i++) {
-	 		for (int j = 0; j < fila2; j++) {
-	   		resultadop = resultadop + (matriz1[k][j]*matriz2[j][i]);
-	 		}
-	 		if (i == columna2-1) {
-	   		fprintf(resultado,"%.1f",resultadop);
-	 		}
-	 		else{
-	   		fprintf(resultado,"%.1f,",resultadop);
-	 		}
-	 		resultadop = 0;
+   	#pragma omp parallel
+   	{
+		#pragma omp for
+		for (int k = 0; k < fila1; k++){
+			for (int i = 0; i < columna2; i++) {
+		 		for (int j = 0; j < fila2; j++) {
+		   		resultadop = resultadop + (matriz1[k][j]*matriz2[j][i]);
+		 		}
+		 		if (i == columna2-1) {
+		   		fprintf(resultado,"%.1f",resultadop);
+		 		}
+		 		else{
+		   		fprintf(resultado,"%.1f,",resultadop);
+		 		}
+		 		resultadop = 0;
+			}
+
+			fprintf(resultado,"\n");
 		}
-		fprintf(resultado,"\n");
 	}
 	fclose(resultado);
 }
