@@ -59,19 +59,16 @@ int main(int argc, char const *argv[]) {
 		fscanf(archivo2,"%d",&columna2);
 
 		if (columna1 == fila2) {
+			
+			// Se llena matriz 1x
+			matriz1 = malloc(fila1*sizeof(float*));
+			matriz1 = LlenaMatriz(fila1,columna1,archivo1,matriz1);
 
-			#pragma omp parallel private(matriz1,matriz2)
-			{
-				// Se llena matriz 1x
-				matriz1 = malloc(fila1*sizeof(float*));
-				matriz1 = LlenaMatriz(fila1,columna1,archivo1,matriz1);
-
-				// Se llena matriz 2
-				matriz2 = malloc(fila2*sizeof(float*));
-				matriz2 = LlenaMatriz(fila2,columna2,archivo2,matriz2);
-			}
-				// Multiplicación de matrices
-				MultiplicarMatrices(fila1,fila2,columna2,matriz1,matriz2);
+			// Se llena matriz 2
+			matriz2 = malloc(fila2*sizeof(float*));
+			matriz2 = LlenaMatriz(fila2,columna2,archivo2,matriz2);
+			// Multiplicación de matrices
+			MultiplicarMatrices(fila1,fila2,columna2,matriz1,matriz2);
 		}
 	}
 
