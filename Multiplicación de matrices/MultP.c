@@ -3,7 +3,7 @@
 #include <time.h>
 #include "omp.h"
 
-float** LlenaMatriz(int fila,int columna, FILE *archivo,	float **matriz){
+float** LlenaMatriz(int fila,int columna, FILE *archivo, float **matriz){
 
 	for (int i = 0; i < fila; i++) {
 		matriz[i] = malloc(columna*sizeof(float));
@@ -20,33 +20,47 @@ float** LlenaMatriz(int fila,int columna, FILE *archivo,	float **matriz){
 void MultiplicarMatrices(int fila1, int fila2, int columna2, float **matriz1, float **matriz2){
 
 	FILE *resultado;
-	float resultadop = 0;
+	int i,j,k;
+	float **matrizr,resultadop = 0,a;
 	resultado = fopen("resultado","w");
+
+	matrizr = malloc(fila1*sizeof(float*));
+	for (int i = 0; i < fila1; i++) {
+		matrizr[i] = malloc(columna2*sizeof(float));
+	}
+
 
 	fprintf(resultado,"%d \n",fila1);
    	fprintf(resultado,"%d \n",columna2);
 
-   	#pragma omp parallel
+   	#pragma omp parallel private(resultadop)
    	{
-		#pragma omp for
-		for (int k = 0; k < fila1; k++){
-			for (int i = 0; i < columna2; i++) {
-		 		for (int j = 0; j < fila2; j++) {
-		   		resultadop = resultadop + (matriz1[k][j]*matriz2[j][i]);
-		 		}
-		 		if (i == columna2-1) {
-		   		fprintf(resultado,"%.1f",resultadop);
-		 		}
-		 		else{
-		   		fprintf(resultado,"%.1f,",resultadop);
-		 		}
+		#pragma omp for schedule(static)
+		for (k = 0; k < fila1; k++){
+			for (i = 0; i < columna2; i++) {
 		 		resultadop = 0;
+		 		for (j = 0; j < fila2; j++) {
+		   			resultadop = resultadop + (matriz1[k][j]*matriz2[j][i]);
+		 		}
+		 		matrizr[k][i] =  resultadop;
 			}
-
-			fprintf(resultado,"\n");
 		}
 	}
+
+	for (i = 0; i < fila1; i++) {
+  		for (j = 0; j < columna2; j++) {
+  			if (i == columna2-1) {
+		   		fprintf(resultado,"%.1f,",matrizr[i][j]);
+		 	}
+		 	else{
+		   		fprintf(resultado,"%.1f",matrizr[i][j]);
+		 	}
+  		}
+  		fprintf(resultado,"\n");
+  	}
+
 	fclose(resultado);
+	free(matrizr);
 }
 
 int main(int argc, char const *argv[]) {
