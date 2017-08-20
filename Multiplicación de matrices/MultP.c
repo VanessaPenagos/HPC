@@ -28,12 +28,11 @@ void MultiplicarMatrices(int fila1, int fila2, int columna2, float **matriz1, fl
 	for (int i = 0; i < fila1; i++) {
 		matrizr[i] = malloc(columna2*sizeof(float));
 	}
-
-
+	
 	fprintf(resultado,"%d \n",fila1);
    	fprintf(resultado,"%d \n",columna2);
 
-   	#pragma omp parallel private(resultadop)
+   	#pragma omp parallel private(resultadop,i,j,k)
    	{
 		#pragma omp for schedule(static)
 		for (k = 0; k < fila1; k++){
@@ -49,11 +48,11 @@ void MultiplicarMatrices(int fila1, int fila2, int columna2, float **matriz1, fl
 
 	for (i = 0; i < fila1; i++) {
   		for (j = 0; j < columna2; j++) {
-  			if (i == columna2-1) {
-		   		fprintf(resultado,"%.1f,",matrizr[i][j]);
+  			if (j == columna2-1) {
+		   		fprintf(resultado,"%.1f",matrizr[i][j]);
 		 	}
 		 	else{
-		   		fprintf(resultado,"%.1f",matrizr[i][j]);
+		   		fprintf(resultado,"%.1f,",matrizr[i][j]);
 		 	}
   		}
   		fprintf(resultado,"\n");
@@ -69,6 +68,7 @@ int main(int argc, char const *argv[]) {
 	FILE *archivo2;
 	int fila1, columna1, fila2, columna2,tid;
 	float **matriz2, **matriz1, resultadop = 0;
+
 
 	archivo1 = fopen(argv[1],"r");
 	archivo2 = fopen(argv[2],"r");

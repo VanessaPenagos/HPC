@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-float** LlenaMatriz(int fila,int columna, FILE *archivo,	float **matriz){
+float** LlenaMatriz(int fila,int columna, FILE *archivo, float **matriz){
 
 	for (int i = 0; i < fila; i++) {
 		matriz[i] = malloc(columna*sizeof(float));
@@ -22,7 +22,7 @@ void MultiplicarMatrices(int fila1, int fila2, int columna2, float **matriz1, fl
 	resultado = fopen("resultado","w");
 
 	fprintf(resultado,"%d \n",fila1);
-   fprintf(resultado,"%d \n",columna2);
+   	fprintf(resultado,"%d \n",columna2);
 
 	for (int k = 0; k < fila1; k++){
 		for (int i = 0; i < columna2; i++) {
