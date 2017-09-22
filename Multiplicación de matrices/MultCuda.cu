@@ -57,13 +57,13 @@ int main(int argc, char const *argv[]) {
 			gridSize= (int) ceil(numOper/blockSize);
 
 			// Reservando y llenado de la matriz 2
-			h_m1 = malloc((fila1*columna1)*sizeof(float)); // Reserva memoria en el host
+			h_m1 = (float)malloc((fila1*columna1)); // Reserva memoria en el host
 			cudaMalloc(&d_m1, (fila1*columna1)); // Reserva memoria en el device
 			h_m1 = LlenaMatriz(fila1,columna1,archivo1,h_m1); // Llena vector-matriz en el host
 			cudaMemcpy( d_m1, h_m1, (fila1*columna1), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
 
 			// Reservando y llenado de la matriz 2
-			h_m2 = malloc((fila2*columna2)*sizeof(float)); // Reserva memoria en el host
+			h_m2 = (float)malloc((fila2*columna2)); // Reserva memoria en el host
 			cudaMalloc(&d_m2, (fila2*columna2)); // Reserva memoria en el device
 			h_m2 = LlenaMatriz(fila2,columna2,archivo2,h_m2); // Llena vector-matriz en el host
 			cudaMemcpy( d_m2, h_m2, (fila2*columna2), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
