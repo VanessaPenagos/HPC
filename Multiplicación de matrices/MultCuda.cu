@@ -2,36 +2,34 @@
 #include <stdlib.h>
 
 
-__global__ void MultiplicarMatrices(float *m1, float *m2, float *mr, int n, int columna2, int fila2)
+__global__ void MultiplicarMatrices(float *m1, float *m2, float *mr, int columna1, int fila1, int columna2, int fila2)
 {
-	int id = blockIdx.x*blockDim.x+threadIdx.x;
-	float resultado;
+    int fila_r = blockIdx.y*blockDim.y+threadIdx.y;
+    int columna_r = blockIdx.x*blockDim.x+threadIdx.x;
+    float tmp_mult = 0;
 
-	for (int i = 0; i <columna2; ++i)
-	{
-		for (int j = 0; j < fila2; ++j)
-		{
-			/* code */
-		}
+    if ((fila < fila2) && (columna < columna1)) {
+        for (int i = 0; i < fila2 ; i++) {
+            tmp_mult += m1[i+fila1*fila_r]*m2[i*columna2+columna_r]; 
+        }
 
-	}
-
+        mr[fila_r*columna2+columna_r]= tmp_mult
+    }
 }
 
 float* LlenaMatriz(int fila,int columna, FILE *archivo, float *matriz){
 
-	for (int i = 0; i < fila; i++) {
+	for (int i = 0; i < (fila*columna); i++) {
 		fscanf(archivo,"%f,",&matriz[i]);
 	}
 	return matriz;
 }
 
-int main(int argc, char const *argv[])
-{
-	FILE *archivo1;
+int main(int argc, char const *argv[]) {
+	
+    FILE *archivo1;
 	FILE *archivo2;
-	int fila1, columna1, fila2, columna2, blockSize = 1024, gridSize , numOper;
-
+	int fila1, columna1, fila2, columna2, blockSize = 32, gridSize , numOper;
 	// Matrices entrada Host
     float *h_m1, *h_m2;
     // Matriz salida Host
@@ -67,11 +65,14 @@ int main(int argc, char const *argv[])
 			// Reservando y llenado de la matriz 2
 			h_m2 = malloc((fila2*columna2)*sizeof(float*)); // Reserva memoria en el host
 			cudaMalloc(&d_m2, (fila2*columna2)); // Reserva memoria en el device
-			h_m2 = LlenaMatriz(fila2,columna2,archivo2,h_m2); // Llnea vector-matriz en el host
+			h_m2 = LlenaMatriz(fila2,columna2,archivo2,h_m2); // Llena vector-matriz en el host
 			cudaMemcpy( d_m2, h_m2, (fila2*columna2), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
   
 			// Multiplicación de matrices
-			MultiplicarMatrices<<<gridSize, blockSize>>>(d_m1,d_m2,d_mr,numOper, columna2, fila2);
+            dim3 dimBlock(blockSize,blockSize,1)
+            dim3 dimThreads(gridSize,gridSize,1)
+			MultiplicarMatrices<<<dimBlock, dimThreads>>>(d_m1,d_m2,d_mr, columna1, fila1, columna2 fila2);
+            cudaMemcpy(h_m1,h_m2,(columna1*fila2),cudaMemcpyDeviceToHost);
 		}
 	}
 }
