@@ -68,11 +68,18 @@ int main(int argc, char const *argv[]) {
 			h_m2 = LlenaMatriz(fila2,columna2,archivo2,h_m2); // Llena vector-matriz en el host
 			cudaMemcpy( d_m2, h_m2, (fila2*columna2), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
   
+			h_mr = (float*)malloc((fila2*columna1));
+			d_mr = (float*)malloc((fila2*columna1));
 			// Multiplicación de matrices
             dim3 dimBlock(blockSize,blockSize,1);
             dim3 dimThreads(gridSize,gridSize,1);
 			MultiplicarMatrices<<<dimBlock, dimThreads>>>(d_m1,d_m2,d_mr, columna1, fila1, columna2, fila2);
             cudaMemcpy(h_mr,d_mr,(columna1*fila2),cudaMemcpyDeviceToHost);
-		}
+		}h_m1 = (float*)malloc((fila1*columna1)); // Reserva memoria en el host
+			cudaMalloc(&d_m1, (fila1*columna1)); // Reserva memoria en el device
+			h_m1 = LlenaMatriz(fila1,columna1,archivo1,h_m1); // Llena vector-matriz en el host
+			cudaMemcpy( d_m1, h_m1, (fila1*columna1), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
+
+// Reservando y llenado de la matriz 2
 	}
 }
