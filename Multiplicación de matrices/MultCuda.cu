@@ -8,12 +8,12 @@ __global__ void MultiplicarMatrices(float *m1, float *m2, float *mr, int columna
     int columna_r = blockIdx.x*blockDim.x+threadIdx.x;
     float tmp_mult = 0;
 
-    if ((fila < fila2) && (columna < columna1)) {
+    if ((fila_r < fila2) && (columna_r < columna1)) {
         for (int i = 0; i < fila2 ; i++) {
             tmp_mult += m1[i+columna1*fila_r]*m2[i*columna2+columna_r]; 
         }
 
-        mr[fila_r*columna2+columna_r]= tmp_mult
+        mr[fila_r*columna2+columna_r]= tmp_mult;
     }
 }
 
@@ -69,8 +69,8 @@ int main(int argc, char const *argv[]) {
 			cudaMemcpy( d_m2, h_m2, (fila2*columna2), cudaMemcpyHostToDevice); // Llenar vector-matriz en el device
   
 			// Multiplicación de matrices
-            dim3 dimBlock(blockSize,blockSize,1)
-            dim3 dimThreads(gridSize,gridSize,1)
+            dim3 dimBlock(blockSize,blockSize,1);
+            dim3 dimThreads(gridSize,gridSize,1);
 			MultiplicarMatrices<<<dimBlock, dimThreads>>>(d_m1,d_m2,d_mr, columna1, fila1, columna2 fila2);
             cudaMemcpy(h_m1,h_m2,(columna1*fila2),cudaMemcpyDeviceToHost);
 		}
