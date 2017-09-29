@@ -15,18 +15,15 @@ int main(int argc, char const *argv[])
 
 	Mat image = imread(argv[1],0);
 
-	if (!image.empty()){
-
-		h_image = (unsigned char *)malloc();
-
-		Size s = image.size();
-		namedWindow(argv[1], WINDOW_AUTOSIZE);
-		imshow(argv[1],image);
-		return 0;
-	}
-	else
-	{
+	if (image.empty()){
 		printf("No se puede cargar la imagen \n");
 	}
+
+	//h_image = (unsigned char*)malloc();
+
+	Size s = image.size();
+	namedWindow(argv[1], WINDOW_AUTOSIZE);
+	imshow(argv[1],image);
+	return 0;
 }
 
