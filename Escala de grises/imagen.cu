@@ -17,16 +17,16 @@ int main(int argc, char const *argv[])
 
 	if (!image.empty()){
 
-		h_image = (unsigned char *)malloc()
+		h_image = (unsigned char *)malloc();
 
-		Size s = image.size()
+		Size s = image.size();
 		namedWindow(argv[1], WINDOW_AUTOSIZE);
-		imshow(argv[1],image)
+		imshow(argv[1],image);
 		return 0;
 	}
 	else
 	{
-		printf("No existe una image \n");
+		printf("No se puede cargar la imagen \n");
 	}
 }
 
