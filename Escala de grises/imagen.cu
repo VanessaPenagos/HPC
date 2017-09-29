@@ -3,26 +3,32 @@
 
 using namespace cv;
 
-__global__ void imgchange(){
+__global__ void imgGray(){
 
-	int col = blockIdx.x*blockDim.x+threadIdx.x;
-	int row = blockIdx.y*blockDim.y+threadIdx.y;
 }
 
 int main(int argc, char const *argv[])
 {
-	char *h_image, *d_image, *h_imagechange, *d_imagechange;
+	char *h_image, *d_image, *h_imagegray, *d_imagegray;
 
 	Mat image = imread(argv[1],0);
+	Size s = image.size();
+	int sizeRGB = s.width*s.height*image.channels(); 
+	int sizeGray = s.width*s.height;
+	int blocksize = 32, gridSize = ;
 
 	if (image.empty()){
-		printf("No se puede cargar la imagen \n");
+		printf("Not found the image \n");
 	}
 
-	//h_image = (unsigned char*)malloc();
+	h_image = (unsigned char*)malloc(sizeRGB);
+	h_imagegray = (unsigned char*)malloc(sizeGray);
+	cudaMalloc((void**)&d_image,sizeRGB);
+	cudaMalloc((void**)&d_imagegray,sizeGray);
 
-	Size s = image.size();
-	namedWindow(argv[1], WINDOW_AUTOSIZE);
+	h_image = image.data;
+
+	namedWindow("Gray image", WINDOW_AUTOSIZE);
 	imshow(argv[1],image);
 	return 0;
 }
