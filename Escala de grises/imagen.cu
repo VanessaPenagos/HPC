@@ -26,7 +26,7 @@ int main(int argc, char const *argv[])
         printf("Not found the image \n");
     }
 
-    h_image = (unsigned char*)malloc(sizeRGB);
+    //h_image = (unsigned char*)malloc(sizeRGB);
     h_imagegray = (unsigned char*)malloc(sizeGray);
     cudaMalloc((void**)&d_image,sizeRGB);
     cudaMalloc((void**)&d_imagegray,sizeGray);
