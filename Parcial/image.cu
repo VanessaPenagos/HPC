@@ -4,7 +4,30 @@
 
 using namespace cv;
 
+
+__global__void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefiltered, int width, int height, char* MaskRow, char * MaskCol){
+
+	int row = blockIdx.y*blockDim.y+threadIdx.y;
+    int col = blockIdx.x*blockDim.x+threadIdx.x;
+    int limitRow = height - 1, limitCol = width - 1;
+    float tmpR,tmpC;
+    int aux_row = row - 1, aux_col = col - 1; 
+    
+    for (int i = 0; i < 3; ++i){
+        for (int j = 0; j < count; ++j){
+            if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
+            	tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
+            	aux_col += 1;
+            }
+            aux_row += 1;
+            aux_col = col - 1 ;
+        }
+        d_imagefiltered[(row * width) + col] = tmp
+    }
+}
+
 __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int width, int height){
+    
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
@@ -15,13 +38,14 @@ __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int
 
 int main(int argc, char const *argv[])
 {
-    uchar *h_image, *d_image, *h_imagegray, *d_imagegray;
+    uchar *h_image, *d_image, *h_imagegray, *d_imagegray, *h_imagefiltered, *d_imagefiltered;
 
     Mat image = imread(argv[1],1);
     Size s = image.size();
     int sizeRGB = s.width*s.height*image.channels()*sizeof(unsigned char);
     int sizeGray = s.width*s.height*sizeof(unsigned char);
     int blockSize = 32;
+
     printf("%d , %d \n",sizeRGB, sizeGray);
     if (image.empty()){
         printf("Not found the image \n");
@@ -39,6 +63,18 @@ int main(int argc, char const *argv[])
     imgGray<<<dimTrheads,dimBlock>>>(d_image,d_imagegray,s.width,s.height);
     cudaDeviceSynchronize();
     cudaMemcpy(h_imagegray,d_imagegray,sizeGray,cudaMemcpyDeviceToHost);
+
+    char h_sobelMaskRow[] = { 1/4 ,0, -1/4, 1/2, 0, -1/2, 1/4, 0, -1/4 };
+    char h_sobelMaskCol[] = { -1/4 , -1/2, -1/4, 0, 1/4, 0, 1/4, 1/2, 1/4};
+
+    char *d_sobelMaskRow
+    char *d_sobelMaskCol
+
+    cudaMalloc((char**)&d_sobelMaskRow,sizeof(char)*9);
+    cudaMalloc((char**)&d_sobelMaskCol,sizeof(char)*9);
+
+    cudaMemcpy(d_sobelMaskRow,h_sobelMaskRow,sizeof(char)*9,cudaMemcpyHostToDevice);
+    cudaMemcpy(d_sobelMaskCol,h_sobelMaskCol,sizeof(char)*9,cudaMemcpyHostToDevice);
 
     Mat imageGray;
     imageGray.create(s.height,s.width,CV_8UC1);
