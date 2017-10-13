@@ -15,19 +15,19 @@ __device__ unsigned char clamp(int value){
 }
 
 
-__global__void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefiltered, int width, int height, char* MaskRow, char * MaskCol){
+__global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefiltered, int width, int height, char* MaskRow, char * MaskCol){
 
-	int row = blockIdx.y*blockDim.y+threadIdx.y;
+    int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
     int limitRow = height - 1, limitCol = width - 1;
     float tmpR,tmpC;
     int aux_row = row - 1, aux_col = col - 1; 
     
     for (int i = 0; i < 3; ++i){
-        for (int j = 0; j < count; ++j){
+        for (int j = 0; j < 3; ++j){
             if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
-            	tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
-            	aux_col += 1;
+                tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
+                aux_col += 1;
             }
             aux_row += 1;
             aux_col = col - 1 ;
@@ -37,7 +37,7 @@ __global__void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefi
     aux_row = row - 1, aux_col = col - 1; 
     
     for (int i = 0; i < 3; ++i){
-        for (int j = 0; j < count; ++j){
+        for (int j = 0; j < 3; ++j){
             if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
                 tmpC += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
                 aux_col += 1;
@@ -88,11 +88,11 @@ int main(int argc, char const *argv[])
     cudaDeviceSynchronize();
     cudaMemcpy(h_imagegray,d_imagegray,sizeGray,cudaMemcpyDeviceToHost);
 
-    char h_sobelMaskRow[] = { 1/4 ,0, -1/4, 1/2, 0, -1/2, 1/4, 0, -1/4 };
-    char h_sobelMaskCol[] = { -1/4 , -1/2, -1/4, 0, 1/4, 0, 1/4, 1/2, 1/4};
+    char h_sobelMaskRow[] = { 1 ,0, -1, 2, 0, -2, 1, 0, -1 };
+    char h_sobelMaskCol[] = { -1 , -2, -1, 0, 1, 0, 1, 1, 1};
 
-    char *d_sobelMaskRow
-    char *d_sobelMaskCol
+    char *d_sobelMaskRow;
+    char *d_sobelMaskCol;
 
     cudaMalloc((char**)&d_sobelMaskRow,sizeof(char)*9);
     cudaMalloc((char**)&d_sobelMaskCol,sizeof(char)*9);
