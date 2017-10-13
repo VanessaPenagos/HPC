@@ -13,5 +13,5 @@ Segundo parcial HPC
 
 **Para copiar imagen del cluster**
 ```bash
-  ssp -P 4000 usuario@dominio:rutaArchivo nuevaUbicación 
+  scp -P 4000 usuario@dominio:rutaArchivo nuevaUbicación 
 ```
