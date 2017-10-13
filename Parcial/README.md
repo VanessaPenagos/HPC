@@ -1,4 +1,4 @@
-#Segundo parcial HPC
+Segundo parcial HPC
 
 - Angie Vanessa Penagos Rios
 - Diego Alejandro Valencia
