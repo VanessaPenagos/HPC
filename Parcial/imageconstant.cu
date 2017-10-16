@@ -5,6 +5,10 @@
 
 using namespace cv;
 
+__constant__ char MaskRow[9];
+__constant__ char MaskCol[9];
+
+
 __device__ unsigned char clamp(int value){
     if(value < 0)
         value = 0;
@@ -15,7 +19,7 @@ __device__ unsigned char clamp(int value){
 }
 
 
-__global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefiltered, int width, int height, char* MaskRow, char * MaskCol){
+__global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagefiltered, int width, int height){
 
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
@@ -91,17 +95,12 @@ int main(int argc, char const *argv[])
     char h_sobelMaskRow[] = { 1 ,0, -1, 2, 0, -2, 1, 0, -1 };
     char h_sobelMaskCol[] = { -1 , -2, -1, 0, 1, 0, 1, 1, 1};
 
-    char *d_sobelMaskRow;
-    char *d_sobelMaskCol;
-
-    cudaMalloc((char**)&d_sobelMaskRow,sizeof(char)*9);
-    cudaMalloc((char**)&d_sobelMaskCol,sizeof(char)*9);
     cudaMalloc((void**)&d_imagefiltered,sizeGray);
 
-    cudaMemcpy(d_sobelMaskRow,h_sobelMaskRow,sizeof(char)*9,cudaMemcpyHostToDevice);
-    cudaMemcpy(d_sobelMaskCol,h_sobelMaskCol,sizeof(char)*9,cudaMemcpyHostToDevice);
+    cudaMemcpyToSymbol(MaskRow,h_sobelMaskRow,sizeof(char)*9);
+    cudaMemcpyToSymbol(MaskCol,h_sobelMaskCol,sizeof(char)*9);
 
-    sobelFilter<<<dimTrheads,dimBlock>>>(d_imagegray,d_imagefiltered,s.width,s.height,d_sobelMaskRow,d_sobelMaskCol);
+    sobelFilter<<<dimTrheads,dimBlock>>>(d_imagegray,d_imagefiltered,s.width,s.height);
     cudaDeviceSynchronize();
     h_imagefiltered = (unsigned char*)malloc(sizeGray);
     cudaMemcpy(h_imagefiltered,d_imagefiltered,sizeGray,cudaMemcpyDeviceToHost);
