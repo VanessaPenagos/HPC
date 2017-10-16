@@ -118,7 +118,8 @@ int main(int argc, char const *argv[])
     imageSobel.data = h_imagefiltered;
     imwrite("./ImageS.jpg",imageSobel);
 
-    cout <<"Tiempo:"<<((double)(end-start))/CLOCKS_PER_SEC<<endl;
+    double time = ((double)(end-start))/CLOCKS_PER_SEC;
+    printf("Tiempo: %lf", time);
 
     return 0;
 }
