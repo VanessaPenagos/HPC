@@ -1,3 +1,0 @@
-/home/users/vanessa19/Repositorios/HPC/Parcial/CMakeFiles/edit_cache.dir
-/home/users/vanessa19/Repositorios/HPC/Parcial/CMakeFiles/rebuild_cache.dir
-/home/users/vanessa19/Repositorios/HPC/Parcial/CMakeFiles/image.dir
