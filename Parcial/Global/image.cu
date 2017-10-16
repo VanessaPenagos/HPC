@@ -63,6 +63,7 @@ __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int
 int main(int argc, char const *argv[])
 {
     uchar *h_image, *d_image, *h_imagegray, *d_imagegray, *h_imagefiltered, *d_imagefiltered;
+    clock_t start, end; // Medir tiempos
 
     Mat image = imread(argv[1],1);
     Size s = image.size();
@@ -76,6 +77,7 @@ int main(int argc, char const *argv[])
     }
 
     h_imagegray = (unsigned char*)malloc(sizeGray);
+    h_imagefiltered = (unsigned char*)malloc(sizeGray);
     cudaMalloc((void**)&d_image,sizeRGB);
     cudaMalloc((void**)&d_imagegray,sizeGray);
 
@@ -84,9 +86,6 @@ int main(int argc, char const *argv[])
     cudaMemcpy(d_image,h_image,sizeRGB,cudaMemcpyHostToDevice);
     dim3 dimBlock(blockSize,blockSize,1);
     dim3 dimTrheads(ceil(s.width/float(blockSize)),ceil(s.height/float(blockSize)),1);
-    imgGray<<<dimTrheads,dimBlock>>>(d_image,d_imagegray,s.width,s.height);
-    cudaDeviceSynchronize();
-    cudaMemcpy(h_imagegray,d_imagegray,sizeGray,cudaMemcpyDeviceToHost);
 
     char h_sobelMaskRow[] = { 1 ,0, -1, 2, 0, -2, 1, 0, -1 };
     char h_sobelMaskCol[] = { -1 , -2, -1, 0, 1, 0, 1, 1, 1};
@@ -101,10 +100,15 @@ int main(int argc, char const *argv[])
     cudaMemcpy(d_sobelMaskRow,h_sobelMaskRow,sizeof(char)*9,cudaMemcpyHostToDevice);
     cudaMemcpy(d_sobelMaskCol,h_sobelMaskCol,sizeof(char)*9,cudaMemcpyHostToDevice);
 
+    start = clock(); //Inicia reloj
+    imgGray<<<dimTrheads,dimBlock>>>(d_image,d_imagegray,s.width,s.height);
+    cudaDeviceSynchronize();
+    cudaMemcpy(h_imagegray,d_imagegray,sizeGray,cudaMemcpyDeviceToHost);
+
     sobelFilter<<<dimTrheads,dimBlock>>>(d_imagegray,d_imagefiltered,s.width,s.height,d_sobelMaskRow,d_sobelMaskCol);
     cudaDeviceSynchronize();
-    h_imagefiltered = (unsigned char*)malloc(sizeGray);
     cudaMemcpy(h_imagefiltered,d_imagefiltered,sizeGray,cudaMemcpyDeviceToHost);
+    end = clock(); //Finaliza reloj
 
     Mat imageGray;
     imageGray.create(s.height,s.width,CV_8UC1);
@@ -115,6 +119,8 @@ int main(int argc, char const *argv[])
     imageSobel.create(s.height,s.width,CV_8UC1);
     imageSobel.data = h_imagefiltered;
     imwrite("./ImageS.jpg",imageSobel);
+
+    cout <<"Tiempo:"<<((double)(end-start))/CLOCKS_PER_SEC<<endl;
 
     return 0;
 }
