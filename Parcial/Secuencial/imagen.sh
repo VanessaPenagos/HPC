@@ -6,5 +6,5 @@
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
 
-./DisplayImage gato.jpg
+./DisplayImage Imagenes/Lenna.png
 
