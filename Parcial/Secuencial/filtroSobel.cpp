@@ -36,7 +36,7 @@ int main(int argc, char **argv){
   imwrite("./Sobel_Image.jpg", grad);
 
   double time = ((double)(end-start))/CLOCKS_PER_SEC;
-  printf("Tiempo: %lf", time);
+  printf("Tiempo: %lf \n", time);
 
   return 0;
 }

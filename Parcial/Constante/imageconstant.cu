@@ -119,7 +119,7 @@ int main(int argc, char const *argv[])
     imwrite("./ImageS.jpg",imageSobel);
 
     double time = ((double)(end-start))/CLOCKS_PER_SEC;
-    printf("Tiempo: %lf", time);
+    printf("Tiempo: %lf \n", time);
 
     return 0;
 }
