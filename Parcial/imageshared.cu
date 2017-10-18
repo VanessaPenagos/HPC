@@ -25,7 +25,7 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
-    __shared__ float window[34][34];
+    __shared__ unsigned char window[34][34];
 
 if ((width > col) && (height > row)){
 //llenar Linea Superior con 0
@@ -50,7 +50,7 @@ if ((width > col) && (height > row)){
     }
 
 //Llenar linea inferior con  0
-    if(row == height){
+    if(row == (height-1)){
             if(col == 0 ){
                 window[32][0]=0;
                 window[33][0]=0;   
@@ -59,7 +59,7 @@ if ((width > col) && (height > row)){
                 window[33][0]=0;    
             }
 
-            if(col == width){
+            if(col == (width-1)){
                 window[32][threadIdx.x+2]=0;
                 window[33][threadIdx.x+2]=0;
             }else if(threadIdx.x == 31){
@@ -79,7 +79,7 @@ if ((width > col) && (height > row)){
                 window[threadIdx.y+1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];  
             }
 
-            if(col == width){
+            if(col == (width-1)){
                 window[threadIdx.y+1][threadIdx.x+2]=0;
             }else if(threadIdx.x == 31){
                 window[threadIdx.y+1][threadIdx.x+2]=d_imagegray[row*width+((blockIdx.x+1)*blockDim.x)];
@@ -101,6 +101,14 @@ if ((width > col) && (height > row)){
 
 __syncthreads();
 
+    if(col == 0){    
+        for (int i = 0; i < 33; ++i){
+            for (int j = 0; j < 33; ++j){
+                printf("%d\n",window[i][j]);
+                }
+            }
+    }
+
     
     float tmpR,tmpC;
     int trow = threadIdx.y+1;
@@ -110,10 +118,8 @@ __syncthreads();
     
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
-            if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
-                tmpR += window[aux_row][aux_col]*MaskRow[(i*3)+j];
-                aux_col += 1;
-            }
+            tmpR += window[aux_row][aux_col]*MaskRow[(i*3)+j];
+            aux_col += 1;
         }
         aux_row += 1;
         aux_col = tcol - 1 ;
@@ -123,10 +129,8 @@ __syncthreads();
     
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
-            if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
                 tmpC += window[aux_row][aux_col]*MaskCol[(i*3)+j];
                 aux_col += 1;
-            }
         }
         aux_row += 1;
         aux_col = col - 1 ;
