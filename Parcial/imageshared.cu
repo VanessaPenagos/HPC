@@ -104,8 +104,9 @@ __syncthreads();
     if(col == 0){    
         for (int i = 0; i < 33; ++i){
             for (int j = 0; j < 33; ++j){
-                printf("%d\n",window[i][j]);
+                printf("%d",window[i][j]);
                 }
+            printf("\n");
             }
     }
 
