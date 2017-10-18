@@ -23,13 +23,14 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
 
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
+    if(row > height || col > width) return;
     int limitRow = height - 1, limitCol = width - 1;
     float tmpR,tmpC;
     int aux_row = row - 1, aux_col = col - 1; 
     
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
-            if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
+            if ((limitCol >= 0 && limitRow >= 0) && (limitRow < height && limitCol < width)){
                 tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
                 aux_col += 1;
             }
@@ -60,7 +61,7 @@ __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
     if ((width > col) && (height > row)){
-        d_imagegray[row*width+col]=d_image[(row*width+col)*3+2]*0.3+d_image[(row*width+col)*3+1]*0.6+d_image[(row*width+col)*3]*0.2;
+        d_imagegray[row*width+col]=d_image[(row*width+col)*3+2]*0.299+d_image[(row*width+col)*3+1]*0.587+d_image[(row*width+col)*3]*0.114;
     }
 }
 

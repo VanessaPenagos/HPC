@@ -57,7 +57,7 @@ __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
     if ((width > col) && (height > row)){
-        d_imagegray[row*width+col]=d_image[(row*width+col)*3+2]*0.3+d_image[(row*width+col)*3+1]*0.6+d_image[(row*width+col)*3]*0.2;
+        d_imagegray[row*width+col]=d_image[(row*width+col)*3+2]*0.299+d_image[(row*width+col)*3+1]*0.587+d_image[(row*width+col)*3]*0.114;
     }
 }
 
