@@ -29,9 +29,9 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
                 tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
                 aux_col += 1;
             }
-            aux_row += 1;
-            aux_col = col - 1 ;
         }
+        aux_row += 1;
+        aux_col = col - 1 ;
     }
 
     aux_row = row - 1, aux_col = col - 1; 
@@ -42,9 +42,9 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
                 tmpC += d_imagegray[aux_row*width + aux_col]*MaskCol[(i*3)+j];
                 aux_col += 1;
             }
-            aux_row += 1;
-            aux_col = col - 1 ;
         }
+        aux_row += 1;
+        aux_col = col - 1 ;
     }
         
     d_imagefiltered[(row * width) + col] = clamp(sqrt(pow(tmpC,2) + pow(tmpR , 2)));
