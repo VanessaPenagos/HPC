@@ -19,13 +19,14 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
 
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
+    if(row > height || col > width) return;
     int limitRow = height - 1, limitCol = width - 1;
     float tmpR,tmpC;
     int aux_row = row - 1, aux_col = col - 1; 
     
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
-            if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
+            if ((limitCol >= 0 && limitRow >= 0) && (limitRow < height && limitCol < width)){
                 tmpR += d_imagegray[aux_row*width + aux_col]*MaskRow[(i*3)+j];
                 aux_col += 1;
             }
@@ -93,8 +94,8 @@ int main(int argc, char const *argv[])
     char *d_sobelMaskRow;
     char *d_sobelMaskCol;
 
-    cudaMalloc((char**)&d_sobelMaskRow,sizeof(char)*9);
-    cudaMalloc((char**)&d_sobelMaskCol,sizeof(char)*9);
+    cudaMalloc((void**)&d_sobelMaskRow,sizeof(char)*9);
+    cudaMalloc((void**)&d_sobelMaskCol,sizeof(char)*9);
     cudaMalloc((void**)&d_imagefiltered,sizeGray);
 
     cudaMemcpy(d_sobelMaskRow,h_sobelMaskRow,sizeof(char)*9,cudaMemcpyHostToDevice);
@@ -103,10 +104,12 @@ int main(int argc, char const *argv[])
     start = clock(); //Inicia reloj
     imgGray<<<dimTrheads,dimBlock>>>(d_image,d_imagegray,s.width,s.height);
     cudaDeviceSynchronize();
+
     cudaMemcpy(h_imagegray,d_imagegray,sizeGray,cudaMemcpyDeviceToHost);
 
     sobelFilter<<<dimTrheads,dimBlock>>>(d_imagegray,d_imagefiltered,s.width,s.height,d_sobelMaskRow,d_sobelMaskCol);
     cudaDeviceSynchronize();
+
     cudaMemcpy(h_imagefiltered,d_imagefiltered,sizeGray,cudaMemcpyDeviceToHost);
     end = clock(); //Finaliza reloj
 
@@ -125,4 +128,3 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
-
