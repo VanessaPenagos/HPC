@@ -45,7 +45,7 @@ if ((width > col) && (height > row)){
                 window[0][33]=0;
                 window[1][33]=d_imagegray[row*width+((blockIdx.x+1)*blockDim.x)];
             }
-            window[threadIdx.y][threadIdx.x+1]=0;
+            window[threadIdx.y][threadIdx.x+1]=255;
             window[threadIdx.y+1][threadIdx.x+1]=d_imagegray[row*width+col];
     }
 
@@ -75,13 +75,18 @@ if ((width > col) && (height > row)){
     else if(row > 0 && row < height){
             if(col == 0 ){
                 window[threadIdx.y+1][0]=0;
-            }else if (col > 0 && threadIdx.x == 0 ){
-                window[threadIdx.y+1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];
             }
+
+    if (col > 0 && threadIdx.x == 0 ){
+        window[threadIdx.y+1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];
+    }
+
     if(col > 0 && col < width){
             if(col == (width-1)){
                 window[threadIdx.y+1][threadIdx.x+2]=0;
-            }else if(threadIdx.x == 31){
+            }
+
+	    if(threadIdx.x == 31){
                 window[threadIdx.y+1][threadIdx.x+2]=d_imagegray[row*width+((blockIdx.x+1)*blockDim.x)];
             }
 
@@ -95,7 +100,7 @@ if ((width > col) && (height > row)){
             }
 
             if (threadIdx.y == 31){
-                window[threadIdx.y][threadIdx.x+1]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+col];
+                window[threadIdx.y+2][threadIdx.x+1]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+col];
             }
 
 	    if (threadIdx.y == 0 && threadIdx.x == 31){
@@ -134,8 +139,7 @@ __syncthreads();
 
     }
 
-
-
+	
     aux_row = trow - 1, aux_col = tcol - 1;
 
     for (int i = 0; i < 3; ++i){
@@ -143,12 +147,13 @@ __syncthreads();
                 tmpC += window[aux_row][aux_col]*MaskCol[(i*3)+j];
                 aux_col += 1;
         }
-	if(col== 0 &&  row == 0){
-		printf(" %d %d " , aux_row , aux_col);
-	}
         aux_row += 1;
         aux_col = tcol - 1 ;
     }
+
+	if(threadIdx.y == 31 && blockIdx.y == 2){
+		printf(" %d ",tmpC);	
+	}
 
     d_imagefiltered[(row * width) + col] = clamp(sqrt(pow(tmpC,2) + pow(tmpR , 2)));
 }
@@ -173,11 +178,6 @@ int main(int argc, char const *argv[])
     int sizeGray = s.width*s.height*sizeof(unsigned char);
     int blockSize = 32;
 
-    printf("%d , %d \n",sizeRGB, sizeGray);
-    if (image.empty()){
-        printf("Not found the image \n");
-    }
-
     h_imagegray = (unsigned char*)malloc(sizeGray);
     cudaMalloc((void**)&d_image,sizeRGB);
     cudaMalloc((void**)&d_imagegray,sizeGray);
@@ -193,9 +193,7 @@ int main(int argc, char const *argv[])
 
     char h_sobelMaskRow[] = { 1 ,0, -1, 2, 0, -2, 1, 0, -1 };
     char h_sobelMaskCol[] = { -1 , -2, -1, 0, 1, 0, 1, 1, 1};
-    for(int i =0 ; i<sizeGray/2 ; i++){
-      printf("pos %d %d\n",i, h_imagegray[i]);
-    }
+
 
     cudaMalloc((void**)&d_imagefiltered,sizeGray);
 
@@ -218,5 +216,17 @@ int main(int argc, char const *argv[])
     imwrite("./ImageS.jpg",imageSobel);
 
  //liberar memoria 
+
+    //free(h_image);
+    //free(h_imagegray);
+    //free(h_imagefiltered);
+	
+
+    cudaFree(d_image);
+    cudaFree(d_imagegray);
+    cudaFree(d_imagefiltered);
+
     return 0;
+
+
 }
