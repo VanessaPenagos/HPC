@@ -32,10 +32,10 @@ if ((width > col) && (height > row)){
     if(row == 0){
             if(col == 0 ){
                 window[0][0]=0;
-                window[1][0]=0;    
+                window[1][0]=0;
             }else if (col > 0 && threadIdx.x == 0 ){
                 window[0][0]=0;
-                window[1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];    
+                window[1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];
             }
 
             if(col == (width-1)){
@@ -53,10 +53,10 @@ if ((width > col) && (height > row)){
     if(row == (height-1)){
             if(col == 0 ){
                 window[32][0]=0;
-                window[33][0]=0;   
+                window[33][0]=0;
             }else if (col > 0 && threadIdx.x == 0 ){
                 window[32][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];
-                window[33][0]=0;    
+                window[33][0]=0;
             }
 
             if(col == (width-1)){
@@ -71,14 +71,14 @@ if ((width > col) && (height > row)){
     }
 
 
-//Llenar lineas interioires
+//Llenar lineas interio	|res
     else if(row > 0 && row < height){
             if(col == 0 ){
-                window[threadIdx.y+1][0]=0;   
+                window[threadIdx.y+1][0]=0;
             }else if (col > 0 && threadIdx.x == 0 ){
-                window[threadIdx.y+1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];  
+                window[threadIdx.y+1][0]=d_imagegray[row*width+((blockIdx.x-1)*blockDim.x+31)];
             }
-
+    if(col > 0 && col < width){
             if(col == (width-1)){
                 window[threadIdx.y+1][threadIdx.x+2]=0;
             }else if(threadIdx.x == 31){
@@ -87,61 +87,74 @@ if ((width > col) && (height > row)){
 
             if (threadIdx.y == 0){
                 window[threadIdx.y][threadIdx.x+1]=d_imagegray[((blockIdx.y-1)*blockDim.y+31)*width+col];
+
             }
 
+	    if (threadIdx.y == 0 && threadIdx.x == 0){
+                window[threadIdx.y][threadIdx.x]=d_imagegray[((blockIdx.y-1)*blockDim.y+31)*width+((blockIdx.x-1)*blockDim.x+31)];
+            }
 
             if (threadIdx.y == 31){
                 window[threadIdx.y][threadIdx.x+1]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+col];
             }
 
+	    if (threadIdx.y == 0 && threadIdx.x == 31){
+                window[threadIdx.y][threadIdx.x+2]=d_imagegray[((blockIdx.y-1)*blockDim.y+31)*width+((blockIdx.x+1)*blockDim.x)];
+            }
+
+	    if (threadIdx.y == 31 && threadIdx.x == 0){
+                window[threadIdx.y+2][threadIdx.x]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+((blockIdx.x-1)*blockDim.x+31)];
+            }
+
+	    if (threadIdx.y == 31 && threadIdx.x == 31){
+                window[threadIdx.y+2][threadIdx.x]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+((blockIdx.x+1)*blockDim.x)];
+            }
+	}
             window[threadIdx.y+1][threadIdx.x+1]=d_imagegray[row*width+col];
-            
+
     }
 }
 
 __syncthreads();
 
-    if(col == 0){    
-        for (int i = 0; i < 33; ++i){
-            for (int j = 0; j < 33; ++j){
-                printf("%d",window[i][j]);
-                }
-            printf("\n");
-            }
-    }
-
-    
     float tmpR,tmpC;
     int trow = threadIdx.y+1;
     int tcol = threadIdx.x+1;
 
-    int aux_row = trow - 1, aux_col = tcol - 1; 
-    
+    int aux_row = trow - 1, aux_col = tcol - 1;
+
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
-            tmpR += window[aux_row][aux_col]*MaskRow[(i*3)+j];
+            tmpR += (window[aux_row][aux_col])*MaskRow[(i*3)+j];
             aux_col += 1;
         }
+
         aux_row += 1;
         aux_col = tcol - 1 ;
+
     }
 
-    aux_row = trow - 1, aux_col = tcol - 1; 
-    
+
+
+    aux_row = trow - 1, aux_col = tcol - 1;
+
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
                 tmpC += window[aux_row][aux_col]*MaskCol[(i*3)+j];
                 aux_col += 1;
         }
+	if(col== 0 &&  row == 0){
+		printf(" %d %d " , aux_row , aux_col);
+	}
         aux_row += 1;
-        aux_col = col - 1 ;
+        aux_col = tcol - 1 ;
     }
-        
+
     d_imagefiltered[(row * width) + col] = clamp(sqrt(pow(tmpC,2) + pow(tmpR , 2)));
 }
 
 __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int width, int height){
-    
+
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
@@ -180,6 +193,9 @@ int main(int argc, char const *argv[])
 
     char h_sobelMaskRow[] = { 1 ,0, -1, 2, 0, -2, 1, 0, -1 };
     char h_sobelMaskCol[] = { -1 , -2, -1, 0, 1, 0, 1, 1, 1};
+    for(int i =0 ; i<sizeGray/2 ; i++){
+      printf("pos %d %d\n",i, h_imagegray[i]);
+    }
 
     cudaMalloc((void**)&d_imagefiltered,sizeGray);
 
@@ -201,6 +217,6 @@ int main(int argc, char const *argv[])
     imageSobel.data = h_imagefiltered;
     imwrite("./ImageS.jpg",imageSobel);
 
+ //liberar memoria 
     return 0;
 }
-

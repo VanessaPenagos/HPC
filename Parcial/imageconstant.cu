@@ -25,8 +25,8 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
     int col = blockIdx.x*blockDim.x+threadIdx.x;
     int limitRow = height - 1, limitCol = width - 1;
     float tmpR,tmpC;
-    int aux_row = row - 1, aux_col = col - 1; 
-    
+    int aux_row = row - 1, aux_col = col - 1;
+
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
             if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
@@ -38,8 +38,8 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
         }
     }
 
-    aux_row = row - 1, aux_col = col - 1; 
-    
+    aux_row = row - 1, aux_col = col - 1;
+
     for (int i = 0; i < 3; ++i){
         for (int j = 0; j < 3; ++j){
             if (limitCol >= 0 && limitRow >= 0 && limitRow < height && limitCol < width){
@@ -50,12 +50,12 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
             aux_col = col - 1 ;
         }
     }
-        
+
     d_imagefiltered[(row * width) + col] = clamp(sqrt(pow(tmpC,2) + pow(tmpR , 2)));
 }
 
 __global__ void imgGray(unsigned char * d_image, unsigned char* d_imagegray, int width, int height){
-    
+
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
@@ -117,4 +117,3 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
-

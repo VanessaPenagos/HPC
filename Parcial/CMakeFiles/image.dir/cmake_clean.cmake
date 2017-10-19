@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/image.dir/image_generated_image.cu.o"
+  "CMakeFiles/image.dir/image_generated_imageshared.cu.o"
   "image.pdb"
   "image"
 )
