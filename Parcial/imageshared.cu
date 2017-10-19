@@ -112,7 +112,7 @@ if ((width > col) && (height > row)){
             }
 
 	    if (threadIdx.y == 31 && threadIdx.x == 31){
-                window[threadIdx.y+2][threadIdx.x]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+((blockIdx.x+1)*blockDim.x)];
+                window[threadIdx.y+2][threadIdx.x+2]=d_imagegray[((blockIdx.y+1)*blockDim.y)*width+((blockIdx.x+1)*blockDim.x)];
             }
 	}
             window[threadIdx.y+1][threadIdx.x+1]=d_imagegray[row*width+col];
