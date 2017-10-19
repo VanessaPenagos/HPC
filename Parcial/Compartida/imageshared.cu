@@ -25,6 +25,8 @@ __global__ void sobelFilter(unsigned char * d_imagegray, unsigned char *d_imagef
     int row = blockIdx.y*blockDim.y+threadIdx.y;
     int col = blockIdx.x*blockDim.x+threadIdx.x;
 
+    if(row > height || col > width) return;
+
     __shared__ unsigned char window[34][34];
 
 if ((width > col) && (height > row)){
