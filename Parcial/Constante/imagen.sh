@@ -13,3 +13,4 @@ export CUDA_VISIBLE_DEVICES=0
 
 ./imageconstant ../Imagenes/Lenna.png
 
+
