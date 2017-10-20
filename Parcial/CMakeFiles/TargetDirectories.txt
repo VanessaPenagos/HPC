@@ -1,3 +1,0 @@
-/home/users/crespiito/Hpc/HPC-1/Parcial/CMakeFiles/edit_cache.dir
-/home/users/crespiito/Hpc/HPC-1/Parcial/CMakeFiles/rebuild_cache.dir
-/home/users/crespiito/Hpc/HPC-1/Parcial/CMakeFiles/image.dir
