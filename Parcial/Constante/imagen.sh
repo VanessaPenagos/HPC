@@ -11,4 +11,6 @@ export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64/${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 export CUDA_VISIBLE_DEVICES=0
 
-./imageconstant ../Imagenes/pajaro.jpg
+./imageconstant ../Imagenes/Lenna.png
+
+
