@@ -122,6 +122,10 @@ int main(int argc, char const *argv[])
     double time = ((double)(end-start))/CLOCKS_PER_SEC;
     printf("Tiempo: %lf \n", time);
 
+    cudaFree(d_image);
+    cudaFree(d_imagegray);
+    cudaFree(d_imagefiltered);
+
     return 0;
 }
 
