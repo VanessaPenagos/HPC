@@ -1,7 +1,0 @@
-h5py
-jupyter
-keras
-matplotlib
-numpy
-scikit-learn
-tensorflow
